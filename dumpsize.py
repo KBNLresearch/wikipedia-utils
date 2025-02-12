@@ -66,6 +66,9 @@ def main():
 
     jobs = data['jobs']
 
+    msRecombineDump = jobs['articlesmultistreamdumprecombine']
+    msRecombineDumpInfo = getDumpInfo(msRecombineDump)
+
     # Bz2 dump
     bz2Dump = jobs['metahistorybz2dump']
     bz2DumpInfo = getDumpInfo(bz2Dump)
@@ -74,6 +77,7 @@ def main():
     szDump = jobs['metahistory7zdump']
     szDumpInfo = getDumpInfo(szDump)
 
+    print("total multistream recombine dump size: {} GB, {} GiB".format(round(msRecombineDumpInfo['sizeGB'], 2), round(msRecombineDumpInfo['sizeGiB'], 2)))
     print("total bz2 dump size: {} GB, {} GiB".format(round(bz2DumpInfo['sizeGB'], 2), round(bz2DumpInfo['sizeGiB'], 2)))
     print("total 7z dump size: {} GB, {} GiB".format(round(szDumpInfo['sizeGB'], 2), round(szDumpInfo['sizeGiB'], 2)))
 
