@@ -74,8 +74,8 @@ def main():
     szDump = jobs['metahistory7zdump']
     szDumpInfo = getDumpInfo(szDump)
 
-    print("total bz2 dump size: {} GB, {} GiB".format(bz2DumpInfo['sizeGB'], bz2DumpInfo['sizeGiB']))
-    print("total 7z dump size: {} GB, {} GiB".format(szDumpInfo['sizeGB'], szDumpInfo['sizeGiB']))
+    print("total bz2 dump size: {} GB, {} GiB".format(round(bz2DumpInfo['sizeGB'], 2), round(bz2DumpInfo['sizeGiB'], 2)))
+    print("total 7z dump size: {} GB, {} GiB".format(round(szDumpInfo['sizeGB'], 2), round(szDumpInfo['sizeGiB'], 2)))
 
 
 if __name__ == "__main__":
