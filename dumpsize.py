@@ -1,11 +1,15 @@
 import argparse
 import json
 import sys
-from urllib.request import urlopen
+#from urllib.request import urlopen
 
 """
 Parse Wikipedia dump status file, and calculate total size of dumps
-with complete page edit history (for both bz2 and 7z formats)
+with complete page edit history (for both bz2 and 7z formats).
+
+Example status file:
+
+https://dumps.wikimedia.org/nlwiki/20250201/dumpstatus.json
 """
 
 # Create argument parser
