@@ -31,22 +31,20 @@ def parseCommandLine():
 
 def getDumpInfo(dump):
     status = dump['status']
-    updated = dump['updated']
-    files = dump['files']
-    # Total file size in bytes
     sizeBytes = 0
-    for file in files.items():
-        fileName = file[0]
-        fileAttribs = file[1]
-        fileSize = int(fileAttribs['size'])
-        # Update total file size
-        sizeBytes += fileSize
+    if status == "done":
+        files = dump['files']
+        for file in files.items():
+            fileName = file[0]
+            fileAttribs = file[1]
+            fileSize = int(fileAttribs['size'])
+            # Update total file size
+            sizeBytes += fileSize
     # Convert sizeBytes to GB and GiB
     sizeGB = sizeBytes / 10**9
     sizeGiB = sizeBytes / 2**30
     info = {}
     info['status'] = status
-    info['updated'] = updated
     info['sizeBytes'] = sizeBytes
     info['sizeGB'] = sizeGB
     info['sizeGiB'] = sizeGiB
@@ -66,8 +64,8 @@ def main():
 
     jobs = data['jobs']
 
-    msRecombineDump = jobs['articlesmultistreamdumprecombine']
-    msRecombineDumpInfo = getDumpInfo(msRecombineDump)
+    #msRecombineDump = jobs['articlesmultistreamdumprecombine']
+    #msRecombineDumpInfo = getDumpInfo(msRecombineDump)
 
     # Bz2 dump
     bz2Dump = jobs['metahistorybz2dump']
@@ -77,7 +75,7 @@ def main():
     szDump = jobs['metahistory7zdump']
     szDumpInfo = getDumpInfo(szDump)
 
-    print("total multistream recombine dump size: {} GB, {} GiB".format(round(msRecombineDumpInfo['sizeGB'], 2), round(msRecombineDumpInfo['sizeGiB'], 2)))
+    #print("total multistream recombine dump size: {} GB, {} GiB".format(round(msRecombineDumpInfo['sizeGB'], 2), round(msRecombineDumpInfo['sizeGiB'], 2)))
     print("total bz2 dump size: {} GB, {} GiB".format(round(bz2DumpInfo['sizeGB'], 2), round(bz2DumpInfo['sizeGiB'], 2)))
     print("total 7z dump size: {} GB, {} GiB".format(round(szDumpInfo['sizeGB'], 2), round(szDumpInfo['sizeGiB'], 2)))
 
