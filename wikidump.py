@@ -101,7 +101,7 @@ def processDump(dump, fetchFlag):
     # Prefix for dump URLs
     urlPrefix = 'https://dumps.wikimedia.org'
     # Dump status
-    status = dump['status']
+    status = dump['dumpStatus']
     dumpInfo['status'] = status
     if status == "done":
         files = dump['files']
@@ -129,8 +129,8 @@ def processDump(dump, fetchFlag):
                 computedHash, hashMatch = fetchFile(fileUrl, fileName, fileSha1)
                 if not hashMatch:
                     hashMatchFlag = False
-                fileInfo['fileSha1Computed'] = computedHash
-                fileInfo['hashMatch'] = hashMatch
+                #fileInfo['fileSha1Computed'] = computedHash
+                fileInfo['sha1Match'] = hashMatch
             
             # Add file info dictionary to filesInfo list
             filesInfo.append(fileInfo)
