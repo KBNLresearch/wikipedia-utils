@@ -101,8 +101,8 @@ def processDump(dump, fetchFlag):
     # Prefix for dump URLs
     urlPrefix = 'https://dumps.wikimedia.org'
     # Dump status
-    status = dump['dumpStatus']
-    dumpInfo['status'] = status
+    status = dump['status']
+    dumpInfo['dumpStatus'] = status
     if status == "done":
         files = dump['files']
         for file in files.items():

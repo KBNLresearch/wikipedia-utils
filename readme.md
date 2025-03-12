@@ -14,7 +14,7 @@ wikidump.py [-h] [--compression {bz2,7z}] [--fetch] statusFile
 
 ### positional arguments
 
-- statusFile: input Wikipedia JSON dump status file. Ex
+- statusFile: input Wikipedia JSON dump status file.
 
 ### optional arguments
 
