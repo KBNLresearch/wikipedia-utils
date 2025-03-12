@@ -1,3 +1,28 @@
 # Wikipedia utilities
 
 This repo contains utility scripts for working with Wikipedia data dumps.
+
+## wikidump.py
+
+Get info about a dump, and optionally download the files in either bz2 or 7z format.
+
+### Usage
+
+```
+wikidump.py [-h] [--compression {bz2,7z}] [--fetch] statusFile
+```
+
+### positional arguments
+
+- statusFile: input Wikipedia JSON dump status file
+
+### optional arguments
+
+- `--compression`, `-c`: compression type. Allowed values are bz2 (default) and 7z.
+- `--fetch`, `-f`: download all files in the dump.
+
+If the `--fetch` option is used, the script verifies the Sha1 hash of each downloaded file against its corresponding SHA1 hash in the dump status file.
+
+### Output file
+
+The script writes a JSON file with information on the dump and its underlying files. If the `--fetch` option is used, this includes information on whether the Sha1 verification was successful.
