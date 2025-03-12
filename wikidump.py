@@ -174,7 +174,7 @@ def main():
 
     # Write dump info to JSON file
     with open("wikidump.json", "w") as fOut: 
-        json.dump(dumpInfo, fOut)
+        json.dump(dumpInfo, fOut, indent=2)
 
     print("total dump size: {} GB, {} GiB".format(dumpInfo['dumpSizeGB'], dumpInfo['dumpSizeGiB']))
 
