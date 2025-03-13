@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sys
 import shutil
 import hashlib
@@ -87,8 +88,8 @@ def fetchFile(fileUrl, fileName, fileHash):
     return computedHash, hashMatch
 
 
-def processDump(dump, fetchFlag):
-    """Process one dump"""
+def getDumpInfo(dump):
+    """Get info onm dump and all its files"""
 
     # Initialize cumulative size of all files in this dump 
     sizeBytes = 0
@@ -96,8 +97,6 @@ def processDump(dump, fetchFlag):
     dumpInfo = {}
     # Files info list
     filesInfo = []
-    # Initial value of hash match flag
-    hashMatchFlag = True
     # Prefix for dump URLs
     urlPrefix = 'https://dumps.wikimedia.org'
     # Dump status
@@ -123,15 +122,7 @@ def processDump(dump, fetchFlag):
             fileInfo['fileUrl'] = fileUrl
             fileInfo['fileMd5'] = fileMd5
             fileInfo['fileSha1'] = fileSha1
-
-            if fetchFlag:
-                # Fetch one file
-                computedHash, hashMatch = fetchFile(fileUrl, fileName, fileSha1)
-                if not hashMatch:
-                    hashMatchFlag = False
-                #fileInfo['fileSha1Computed'] = computedHash
-                fileInfo['sha1Match'] = hashMatch
-            
+            fileInfo['fileSha1Match'] = False 
             # Add file info dictionary to filesInfo list
             filesInfo.append(fileInfo)
     else:
@@ -145,8 +136,6 @@ def processDump(dump, fetchFlag):
     dumpInfo['dumpSizeGB'] = round(sizeGB, 2)
     dumpInfo['dumpSizeGiB'] = round(sizeGiB, 2)
     dumpInfo['files'] = filesInfo
-    if fetchFlag:
-        dumpInfo['hashMatchFlag'] = hashMatchFlag
 
     return dumpInfo
 
@@ -159,31 +148,82 @@ def main():
     compressionType = args.compressionType
     fetchFlag = args.fetchFlag
 
-    # Read JSON dump file
-    with open(dumpFile) as fd:
-        data = json.load(fd)
+    # Flag that indicates whether we need to get dump info
+    # from existing output file (useful for resuming earlier
+    # failed runs)
+    loadStatusFile = True
 
-    jobs = data['jobs']
+    # Flag that indicates whether hash match was successful for all downloaded files
+    hashMatchFlag = True
 
-    if compressionType == "bz2":
-        dump = jobs['metahistorybz2dump']
-    elif compressionType == "7z":
-        dump = jobs['metahistory7zdump']
+    # Generate output file name from base name of dump file
+    bName = os.path.splitext(os.path.basename(dumpFile))[0]
+    outFile = ("wikidump-{}.json").format(bName)
 
-    dumpInfo = processDump(dump, fetchFlag)
+    # If output file already exists, load contents to dumpInfo
+    # dictionary.
+    if os.path.isfile(outFile):
+        with open(outFile) as fOut:
+            dumpInfo = json.load(fOut)
+            # If compression type is not identical to previous call
+            # we still need to use the status file
+            try:
+                if dumpInfo['compressionType'] == compressionType:
+                    loadStatusFile = False
+            except KeyError:
+                # Re-run on old-style file ...
+                loadStatusFile = True
 
-    # Write dump info to JSON file
-    with open("wikidump.json", "w") as fOut: 
-        json.dump(dumpInfo, fOut, indent=2)
+    # Create dumpInfo dictionary from dump file
+    if loadStatusFile:
+        with open(dumpFile) as fD:
+            data = json.load(fD)
+        jobs = data['jobs']
 
-    print("total dump size: {} GB, {} GiB".format(dumpInfo['dumpSizeGB'], dumpInfo['dumpSizeGiB']))
+        if compressionType == "bz2":
+            dump = jobs['metahistorybz2dump']
+        elif compressionType == "7z":
+            dump = jobs['metahistory7zdump']
 
+        dumpInfo = getDumpInfo(dump)
+        dumpInfo['compressionType'] = compressionType
+
+    print("total dump size ({}): {} GB, {} GiB".format(dumpInfo['compressionType'],
+                                                       dumpInfo['dumpSizeGB'],
+                                                       dumpInfo['dumpSizeGiB']))
+
+    # Download files
     if fetchFlag:
-        hashMatchFlag = dumpInfo['hashMatchFlag']
+        for file in dumpInfo['files']:
+            fileName = file['fileName']
+            fileUrl = file['fileUrl']
+            fileSha1 = file['fileSha1']
+            fileSha1Match = file['fileSha1Match']
+
+            # Skip any files that were already downloaded in a previous run 
+            if not fileSha1Match:
+                # Fetch one file
+                computedHash, hashMatch = fetchFile(fileUrl, fileName, fileSha1)
+                if not hashMatch:
+                    hashMatchFlag = False
+                # Update dumpInfo dictionary
+                file.update({'fileSha1Match': hashMatch})
+                dumpInfo.update()
+
+            # Write dump info to JSON file
+            with open(outFile, "w") as fOut: 
+                json.dump(dumpInfo, fOut, indent=2)
+        
+        dumpInfo['hashMatchFlag'] = hashMatchFlag
+
         if hashMatchFlag:
             print("Sha1 verification was successful for all fetched files!")
         else:
             print("Sha1 verification failed for one or more fetched files!")
+
+    # Write dump info to JSON file
+    with open(outFile, "w") as fOut: 
+        json.dump(dumpInfo, fOut, indent=2)
 
 
 if __name__ == "__main__":
