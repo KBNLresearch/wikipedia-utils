@@ -4,7 +4,7 @@ This repo contains utility scripts for working with Wikipedia data dumps.
 
 ## wikidump.py
 
-Get info about a dump from the dump status file ([example file here](https://dumps.wikimedia.org/nlwiki/20250201/dumpstatus.json)), and optionally download the files (full history + metadata) in either bz2 or 7z format.
+Get info about a dump from the dump status file ([example file here](https://dumps.wikimedia.org/nlwiki/20260101/dumpstatus.json)), and optionally download the files (full history + metadata) in either bz2 or 7z format.
 
 ### Usage
 
